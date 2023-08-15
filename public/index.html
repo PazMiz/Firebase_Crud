@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Paz Firebase Data</title>
+  <style>
+    /* Your existing styles */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+      }
+  
+      header {
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 1rem;
+      }
+  
+      main {
+        padding: 2rem;
+      }
+  
+      footer {
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        padding: 1rem;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+      }
+    /* New style for car cards */
+    .car-card {
+      border: 1px solid #ddd;
+      padding: 1rem;
+      margin: 1rem;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome to My Basic HTML Page</h1>
+  </header>
+
+  <main>
+    <p>This is a simple HTML page deployed to Firebase Hosting.</p>
+    <p>Feel free to customize and enhance it as you like!</p>
+
+    <!-- Firebase Car Data -->
+    <div id="carList"></div>
+
+    <!-- Form to add new cars -->
+    <h2>Add a New Car</h2>
+    <form id="addCarForm">
+      <label for="model">Model:</label>
+      <input type="text" id="model" name="model" required><br>
+
+      <label for="year">Year:</label>
+      <input type="number" id="year" name="year" required><br>
+
+      <label for="color">Color:</label>
+      <input type="text" id="color" name="color" required><br>
+
+      <button type="submit">Add Car</button>
+    </form>
+  </main>
+
+  <footer>
+    <!-- <p>&copy; 2023 Paz</p> -->
+  </footer>
+
+  <!-- Firebase Configuration and Script -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCclB-KX1UeGdH8rs2IJTqJ6k2HbA17oY4",
+      authDomain: "pazpj-256be.firebaseapp.com",
+      projectId: "pazpj-256be",
+      storageBucket: "pazpj-256be.appspot.com",
+      messagingSenderId: "3944589911",
+      appId: "1:3944589911:web:65486b6a38add6a2271112",
+      measurementId: "G-5G0YXNH5EP"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Reference to the car collection
+    const carList = document.getElementById("carList");
+
+    // Reference to the add car form
+    const addCarForm = document.getElementById("addCarForm");
+
+    // Handle form submission
+    addCarForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const model = addCarForm.model.value;
+      const year = parseInt(addCarForm.year.value);
+      const color = addCarForm.color.value;
+
+      // Add new car data to Firestore
+      db.collection("Cars").add({
+        model: model,
+        year: year,
+        color: color
+      })
+      .then(() => {
+        console.log("Car added successfully!");
+        // Clear form fields after submission
+        addCarForm.reset();
+      })
+      .catch((error) => {
+        console.error("Error adding car: ", error);
+      });
+    });
+
+    // Fetch and display car data (model, year, color)
+    db.collection("Cars")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const carData = doc.data();
+          const carCard = document.createElement("div");
+          carCard.className = "car-card";
+          carCard.innerHTML = `
+            <h2>${carData.model}</h2>
+            <p>Year: ${carData.year}</p>
+            <p>Color: ${carData.color}</p>
+          `;
+          carList.appendChild(carCard);
+        });
+      })
+      .catch((error) => {
+        console.log("Error getting car data: ", error);
+      });
+  </script>
+</body>
+</html>
