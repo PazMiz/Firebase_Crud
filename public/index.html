@@ -6,33 +6,34 @@
   <title>Paz Firebase Data</title>
   <style>
     /* Your existing styles */
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f0f0f0;
-      }
-  
-      header {
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        padding: 1rem;
-      }
-  
-      main {
-        padding: 2rem;
-      }
-  
-      footer {
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        padding: 1rem;
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-      }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    main {
+      padding: 2rem;
+    }
+
+    footer {
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+
     /* New style for car cards */
     .car-card {
       border: 1px solid #ddd;
@@ -40,6 +41,23 @@
       margin: 1rem;
       background-color: #fff;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Styles for alert messages */
+    .alert {
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+    }
+
+    .success {
+      background-color: #5cb85c;
+      color: #fff;
+    }
+
+    .error {
+      background-color: #d9534f;
+      color: #fff;
     }
   </style>
 </head>
@@ -71,21 +89,13 @@
     </form>
   </main>
 
-  
-
   <!-- Firebase Configuration and Script -->
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
   <script>
     // Firebase configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyCclB-KX1UeGdH8rs2IJTqJ6k2HbA17oY4",
-      authDomain: "pazpj-256be.firebaseapp.com",
-      projectId: "pazpj-256be",
-      storageBucket: "pazpj-256be.appspot.com",
-      messagingSenderId: "3944589911",
-      appId: "1:3944589911:web:65486b6a38add6a2271112",
-      measurementId: "G-5G0YXNH5EP"
+      xxx
     };
 
     // Initialize Firebase
@@ -114,11 +124,13 @@
       })
       .then(() => {
         console.log("Car added successfully!");
+        showAlert("Car added successfully!", "success");
         // Clear form fields after submission
         addCarForm.reset();
       })
       .catch((error) => {
         console.error("Error adding car: ", error);
+        showAlert("Error adding car. Please try again.", "error");
       });
     });
 
@@ -134,13 +146,92 @@
             <h2>${carData.model}</h2>
             <p>Year: ${carData.year}</p>
             <p>Color: ${carData.color}</p>
+            <button class="delete-button" data-id="${doc.id}">Delete</button>
+            <h3>Edit Car:</h3>
+            <label for="edit-model">Model:</label>
+            <input type="text" class="model-input" value="${carData.model}">
+            <label for="edit-year">Year:</label>
+            <input type="number" class="year-input" value="${carData.year}">
+            <label for="edit-color">Color:</label>
+            <input type="text" class="color-input" value="${carData.color}">
+            <button class="update-button" data-id="${doc.id}">Update</button>
           `;
           carList.appendChild(carCard);
+        });
+
+        // Add event listener to delete buttons
+        const deleteButtons = document.querySelectorAll(".delete-button");
+        deleteButtons.forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const carId = event.target.getAttribute("data-id");
+            deleteCar(carId);
+          });
+        });
+
+        // Add event listener to update buttons
+        const updateButtons = document.querySelectorAll(".update-button");
+        updateButtons.forEach((button) => {
+          button.addEventListener("click", (event) => {
+            const carId = event.target.getAttribute("data-id");
+            const carCard = event.target.closest(".car-card");
+            const model = carCard.querySelector(".model-input").value;
+            const year = parseInt(carCard.querySelector(".year-input").value);
+            const color = carCard.querySelector(".color-input").value;
+
+            updateCar(carId, model, year, color);
+          });
         });
       })
       .catch((error) => {
         console.log("Error getting car data: ", error);
+        showAlert("Error fetching car data. Please try again.", "error");
       });
+
+    // Function to delete a car
+    function deleteCar(carId) {
+      db.collection("Cars").doc(carId).delete()
+        .then(() => {
+          console.log("Car deleted successfully!");
+          showAlert("Car deleted successfully!", "success");
+          // Remove the car card from the UI
+          const carCard = document.querySelector(`[data-id="${carId}"]`).parentElement;
+          carCard.remove();
+        })
+        .catch((error) => {
+          console.error("Error deleting car: ", error);
+          showAlert("Error deleting car. Please try again.", "error");
+        });
+    }
+
+    // Function to update a car's information
+    function updateCar(carId, model, year, color) {
+      db.collection("Cars").doc(carId).update({
+        model: model,
+        year: year,
+        color: color
+      })
+      .then(() => {
+        console.log("Car updated successfully!");
+        showAlert("Car updated successfully!", "success");
+      })
+      .catch((error) => {
+        console.error("Error updating car: ", error);
+        showAlert("Error updating car. Please try again.", "error");
+      });
+    }
+
+    // Function to display an alert message
+    function showAlert(message, type) {
+      const alertDiv = document.createElement("div");
+      alertDiv.className = `alert ${type}`;
+      alertDiv.textContent = message;
+
+      document.body.appendChild(alertDiv);
+
+      setTimeout(() => {
+        alertDiv.remove();
+      }, 3000); // Remove the alert after 3 seconds
+    }
   </script>
 </body>
 </html>
