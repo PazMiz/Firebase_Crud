@@ -15,6 +15,8 @@ Replace Firebase Configuration:
 Before you can run the application,Replace the Firebase configuration in the index.html file with your own configuration:
 
 Example -
+Code--
+
 const firebaseConfig = {
   apiKey: "your-api-key",
   authDomain: "your-auth-domain",
