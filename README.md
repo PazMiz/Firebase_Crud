@@ -4,7 +4,7 @@ This is a simple web application that demonstrates CRUD (Create, Read, Update, D
 Getting Started
 To run this application, follow these steps:
 
-Create firestore database from https://console.firebase.google.com/ 
+################ Create firestore database from https://console.firebase.google.com/ ################
 
 Clone the repository:
 
